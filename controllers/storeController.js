@@ -11,18 +11,22 @@ exports.customMiddleware = (req, res, next) => {
 }
 
 exports.homePage = (req, res) => {
-  console.log('Hello,', req.name);
-  res.render('index');
+  console.log('Home page is visited');
+  res.render('index', {
+    title: 'Home page'
+  });
 }
 
 exports.addStore = (req, res) => {
-  res.render('addStore', { title: 'Add Store'});
+  res.render('editStore', { 
+    title: 'Add a new store'
+  });
 }
 
 exports.createStore = async (req, res) => {
   // res.json(req.body);
-  const store = new Store(req, body);
-  store.age = 10;
+  const store = new Store(req.body);
   await store.save();
+  console.log('Store saved!')
   res.redirect('/');
 }
