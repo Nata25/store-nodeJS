@@ -59,7 +59,6 @@ exports.resize = async (req, res, next) => {
 exports.createStore = async (req, res) => {
   // res.json(req.body);
   const store = new Store(req.body);
-  console.log(store);
   await store.save();
   console.log('Store saved!')
   req.flash('success', `Successfully created ${store.name}! Care to leave a review?`)
@@ -68,10 +67,19 @@ exports.createStore = async (req, res) => {
 
 exports.getStores = async (req, res) => {
   const stores = await Store.find();
-  console.log(stores);
   res.render('stores', {
     title: 'Stores',
     stores,
+  });
+}
+
+exports.getStoreBySlug = async (req, res, next) => {
+  const store = await Store.findOne({ slug: req.params.slug });
+  // res.json(store);
+  if (!store) return next();
+  res.render('store', {
+    title: `${store.name} page`,
+    store,
   });
 }
 
