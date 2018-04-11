@@ -1,4 +1,5 @@
 const mongoose = require('mongoose'); 
+const multer = require('multer');
 const Store = mongoose.model('Store');
 
 exports.customMiddleware = (req, res, next) => {
@@ -54,6 +55,7 @@ exports.editStore = async (req, res) => {
 }
 
 exports.updateStore = async (req, res) => {
+  req.body.location.type = 'Point';
   const store = await Store.findOneAndUpdate({
       _id: req.params.id
     },
