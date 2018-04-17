@@ -46,10 +46,12 @@ router.post('/account', catchErrors(userController.updateAccount));
 router.post('/account/forgot', catchErrors(authController.forgot));
 
 router.get('/account/reset/:token', 
+  authController.checkUser,
   catchErrors(authController.reset));
   
 router.post('/account/reset/:token', 
   authController.confirmedPasswords,
+  authController.checkUser,
   catchErrors(authController.update)
 );
 

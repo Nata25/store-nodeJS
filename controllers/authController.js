@@ -30,7 +30,7 @@ exports.forgot = async (req, res) => {
   // 1. see is user exists
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
-    req.flash('error', 'No account for the address found');
+    req.flash('error', 'No account for the address found.');
     res.redirect('/login');
     return;
   }
@@ -48,19 +48,21 @@ exports.forgot = async (req, res) => {
   res.redirect('/login');
 };
 
-exports.reset = async (req, res) => {
-  // 1. check if user has valid token and it didn't expire
+exports.checkUser = async (req, res, next) => {
   const user = await User.findOne({
     resetPasswordToken: req.params.token,
     resetPasswordExpires: { $gt: Date.now() }
   });
   if (!user) {
-    req.flash('error', 'Password reset token invalid or expired');
+    req.flash('error', 'Password reset token invalid or expired.');
     res.redirect('/login');
     return;
   }
+  req.user = user;
+  next();
+}
 
-  // 2. if user data is ok, show reset password page
+exports.reset = async (req, res) => {
   res.render('reset', {
     title: 'Reset your password'
   });
@@ -77,18 +79,7 @@ exports.confirmedPasswords = (req, res, next) => {
 
 
 exports.update = async (req, res) => {
-  // check if user has a valid token
-  const user = await User.findOne({
-    resetPasswordToken: req.params.token,
-    resetPasswordExpires: { $gt: Date.now() }
-  });
-  // if not, send user to login page
-  if (!user) {
-    req.flash('error', 'Password reset token invalid or expired');
-    res.redirect('/login');
-    return;
-  }
-  // if ok, update password
+  const user = req.user;
   const setPassword = promisify(user.setPassword, user); // promisifying user.setPassword() method from passport.js
   await setPassword(req.body.password); // wait until data are updated and attached to the user
   user.resetPasswordToken = undefined; // wipe up db from temporarily data
